@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+    id 'war'
+}
+
+group 'org.springframework'
+version '5.0.6.RELEASE'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile(project(":spring-webmvc"))
+    compile(project(":spring-aspects"))
+    compile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+    compile group: 'javax.servlet.jsp', name: 'javax.servlet.jsp-api', version: '2.3.3'
+    compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.5.Final'
+
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.4'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.4'
+    compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
