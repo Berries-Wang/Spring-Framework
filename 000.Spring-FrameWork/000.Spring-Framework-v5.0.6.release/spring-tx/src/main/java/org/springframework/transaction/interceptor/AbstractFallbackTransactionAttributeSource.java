@@ -104,13 +104,16 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 			} else {
 				return (TransactionAttribute) cached;
 			}
-		} else { // 缓存中没有，则需要取解析方法
+		} else { // 缓存中没有，则需要解析方法来获取事务注解信息
 			// We need to work it out.
+			//
 			TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass);
 			// Put it in the cache.
 			if (txAttr == null) {
+				// 没有事务注解，维护缓存
 				this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
 			} else {
+				//
 				String methodIdentification = ClassUtils.getQualifiedMethodName(method, targetClass);
 				if (txAttr instanceof DefaultTransactionAttribute) {
 					((DefaultTransactionAttribute) txAttr).setDescriptor(methodIdentification);
@@ -118,6 +121,7 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 				if (logger.isDebugEnabled()) {
 					logger.debug("Adding transactional method '" + methodIdentification + "' with attribute: " + txAttr);
 				}
+				// 维护缓存信息
 				this.attributeCache.put(cacheKey, txAttr);
 			}
 			return txAttr;
@@ -169,13 +173,15 @@ public abstract class AbstractFallbackTransactionAttributeSource implements Tran
 		}
 
 		// Second try is the transaction attribute on the target class.
+		// 如果方法上没有@Transactional注解，则从该方法对应的类上解析
 		txAttr = findTransactionAttribute(specificMethod.getDeclaringClass());
 		if (txAttr != null && ClassUtils.isUserLevelMethod(method)) {
 			return txAttr;
 		}
 
+		// 如果还没有获取到@Transactional注解信息，则从原来的方法或者类中获取对应的事务注解信息
 		if (specificMethod != method) {
-			// Fallback is to look at the original method.
+			// Fallback is to look at the original(最初的，原先的) method.
 			txAttr = findTransactionAttribute(method);
 			if (txAttr != null) {
 				return txAttr;

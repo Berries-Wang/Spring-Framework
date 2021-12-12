@@ -80,37 +80,54 @@ public class SpringTransactionAnnotationParser implements TransactionAnnotationP
 	 */
 	protected TransactionAttribute parseTransactionAnnotation(AnnotationAttributes attributes) {
 		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
+
 		// 解析事务传播行为
 		Propagation propagation = attributes.getEnum("propagation");
 		rbta.setPropagationBehavior(propagation.value());
+
+		// 解析事务隔离级别
 		Isolation isolation = attributes.getEnum("isolation");
 		rbta.setIsolationLevel(isolation.value());
+
+		// 解析超时时间
 		rbta.setTimeout(attributes.getNumber("timeout").intValue());
+
+		// 是否只读事务
 		rbta.setReadOnly(attributes.getBoolean("readOnly"));
+
 		// 从注解org.springframework.transaction.annotation.Transactional可以判断出来，qualifier是代表的是事务管理器
 		rbta.setQualifier(attributes.getString("value"));
+
+		// 解析事务回滚信息
 		ArrayList<RollbackRuleAttribute> rollBackRules = new ArrayList<>();
-		Class<?>[] rbf = attributes.getClassArray("rollbackFor");
+
+		// 解析需要回滚的
+		Class<?>[] rbf = attributes.getClassArray("rollbackFor"); // 解析需要回滚的-根据.class指定
 		for (Class<?> rbRule : rbf) {
 			RollbackRuleAttribute rule = new RollbackRuleAttribute(rbRule);
 			rollBackRules.add(rule);
 		}
-		String[] rbfc = attributes.getStringArray("rollbackForClassName");
+		String[] rbfc = attributes.getStringArray("rollbackForClassName");// 解析需要回滚的-根据类名称指定
 		for (String rbRule : rbfc) {
 			RollbackRuleAttribute rule = new RollbackRuleAttribute(rbRule);
 			rollBackRules.add(rule);
 		}
-		Class<?>[] nrbf = attributes.getClassArray("noRollbackFor");
+
+		// 解析不需要回滚的
+		Class<?>[] nrbf = attributes.getClassArray("noRollbackFor");// 解析不需要回滚的-根据.class类型指定
 		for (Class<?> rbRule : nrbf) {
 			NoRollbackRuleAttribute rule = new NoRollbackRuleAttribute(rbRule);
 			rollBackRules.add(rule);
 		}
-		String[] nrbfc = attributes.getStringArray("noRollbackForClassName");
+		String[] nrbfc = attributes.getStringArray("noRollbackForClassName"); // // 解析不需要回滚的-根据类名称指定
 		for (String rbRule : nrbfc) {
 			NoRollbackRuleAttribute rule = new NoRollbackRuleAttribute(rbRule);
 			rollBackRules.add(rule);
 		}
+		// 设置事务回滚信息
 		rbta.getRollbackRules().addAll(rollBackRules);
+
+		// 返回事务属性
 		return rbta;
 	}
 

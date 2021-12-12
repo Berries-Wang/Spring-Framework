@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class WelcomeServiceImpl implements WelcomeService {
-	/*@Override*/
+	@Override
 	public String sayHello(String name) {
 		System.out.println("SayHello: " + name);
 		return "Success";

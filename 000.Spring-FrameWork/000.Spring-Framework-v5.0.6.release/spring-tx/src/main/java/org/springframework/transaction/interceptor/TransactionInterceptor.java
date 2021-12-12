@@ -86,6 +86,13 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
 	}
 
 
+	/**
+	* @description: `通过研究代理类的执行方式以及代码的执行逻辑，最终调用这个方法进行Spring事务的处理`
+	* @param: invocation
+	* @Return 'java.lang.Object'
+	* @By Wei.Wang
+	* @date  2021/12/12 下午10:13
+	*/
 	@Override
 	@Nullable
 	public Object invoke(final MethodInvocation invocation) throws Throwable {

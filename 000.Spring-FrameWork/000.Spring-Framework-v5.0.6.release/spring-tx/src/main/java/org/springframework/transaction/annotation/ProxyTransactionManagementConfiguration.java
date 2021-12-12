@@ -54,7 +54,7 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 		BeanFactoryTransactionAttributeSourceAdvisor advisor = new BeanFactoryTransactionAttributeSourceAdvisor();
 		//
 		advisor.setTransactionAttributeSource(transactionAttributeSource());
-		//
+		// Advisor 与 org.aopalliance.intercept.MethodInterceptor 关系如:org.springframework.aop.framework.ReflectiveMethodInvocation.proceed
 		advisor.setAdvice(transactionInterceptor());
 		if (this.enableTx != null) {
 			advisor.setOrder(this.enableTx.<Integer>getNumber("order"));
@@ -90,7 +90,7 @@ public class ProxyTransactionManagementConfiguration extends AbstractTransaction
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public TransactionInterceptor transactionInterceptor() {
 		TransactionInterceptor interceptor = new TransactionInterceptor();
-		/* 注意,这里是关键点，这里将TransactionAttributeSource类型的对象设置到TransactionInterceptor，
+		/* !!! 注意,这里是关键点，这里将TransactionAttributeSource类型的对象设置到TransactionInterceptor，
 		 * 即添加org.springframework.transaction.annotation.SpringTransactionAnnotationParser
 		 * 用于解析@Transactional注解
 		 */

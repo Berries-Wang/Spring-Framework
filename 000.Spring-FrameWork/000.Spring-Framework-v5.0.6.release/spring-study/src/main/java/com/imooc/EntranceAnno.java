@@ -40,7 +40,7 @@ public class EntranceAnno {
 			System.out.println("--->" + goal);
 		}
 
-		WelcomeServiceImpl welcomeService = (WelcomeServiceImpl) applicationContext.getBean("welcomeServiceImpl");
+		WelcomeService welcomeService = (WelcomeService) applicationContext.getBean("welcomeServiceImpl");
 		WelcomeController welcomeController = applicationContext.getBean(WelcomeController.class);
 
 		welcomeService.sayHello("I am create by annotation");

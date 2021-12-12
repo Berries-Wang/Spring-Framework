@@ -289,19 +289,25 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 											 final InvocationCallback invocation) throws Throwable {
 
 		// If the transaction attribute is null, the method is non-transactional.
-		// 获取TransactionAttributeSource，如org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration.transactionInterceptor
+		// 获取org.springframework.transaction.annotation.AnnotationTransactionAttributeSource,用于解析@Transactional注解
 		TransactionAttributeSource tas = getTransactionAttributeSource();
+
 		// 使用TransactionAttributeSource解析出方法目前方法上的@Transactional注解并转换为TransactionAttribute，
 		// 如果txAttr(即解析出的TransactionAttribute为空，换句话说就是没有被@Transactional注解标注)为空，则不需要事务
 		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
-		// 通过TransactionAttribute来获取事务管理器,即获取事务策略(先通过名称获取，没有指定名称则获取默认的)
+
+		// 获取事务管理器: 通过TransactionAttribute来获取事务管理器,即获取事务策略(先通过名称获取，没有指定名称则获取默认的)
+		// 小朋友，还记得吗，使用Spring事务时需要指定事务管理器,如: com.imooc.data.DataSourceConfig
 		final PlatformTransactionManager tm = determineTransactionManager(txAttr);
+
 
 		// 添加上事务的方法的全限定名，如： com.imooc.services.impl.TransactionalServiceImpl.testTrans
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
-		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
-			// Standard transaction demarcation with getTransaction and commit/rollback calls.
+		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) { // Debug发现执行这个if
+			// Standard transaction demarcation(n. 划分；划界；限界) with getTransaction and commit/rollback calls.
+			// 使用getTransaction和提交/回滚调用进行标准事务划分。
+			// 通过该方法，可以了解到Spring事务的传播行为了
 			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
 			Object retVal = null;
 			try {
@@ -473,6 +479,10 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * Create a transaction if necessary based on the given TransactionAttribute.
 	 * <p>Allows callers to perform custom TransactionAttribute lookups through
 	 * the TransactionAttributeSource.
+	 *
+	 * 如果必要，则基于指定的TransactionAttribute创建一个事务
+	 *
+	 * 这里结合MySQL事务分析一下!!!
 	 *
 	 * @param txAttr                  the TransactionAttribute (may be {@code null})
 	 * @param joinpointIdentification the fully qualified method name
