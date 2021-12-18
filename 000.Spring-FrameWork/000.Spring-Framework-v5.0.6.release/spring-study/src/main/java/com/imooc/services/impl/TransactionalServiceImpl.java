@@ -1,5 +1,6 @@
 package com.imooc.services.impl;
 
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class TransactionalServiceImpl {
 	private JdbcTemplate jdbcTemplate;
 
 	@Transactional(rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
-	public String testTrans() {
+	public String testTrans() throws Exception {
 		Map<String, Object> queryForMap = jdbcTemplate.queryForMap("select * from people;");
 		if (null == queryForMap || queryForMap.size() == 0) {
 			System.out.println("暂无数据");
@@ -25,6 +26,8 @@ public class TransactionalServiceImpl {
 		for (Map.Entry<String, Object> entry : queryForMap.entrySet()) {
 			System.out.println(entry.getKey() + " : " + entry.getValue());
 		}
+		// 事务嵌套，测试事务的传播行为
+		((TransactionalServiceImpl) AopContext.currentProxy()).testTransRollBack();
 		return "testTrans";
 	}
 

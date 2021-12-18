@@ -19,7 +19,7 @@ public class DataSourceConfig {
 	@Bean(name = "dataSource")
 	public DataSource createDataSource()  {
 		DruidDataSource dataSource = new DruidDataSource();
-		dataSource.setUrl("jdbc:mysql://172.17.0.2:3306/spring?characterEncoding=UTF-8");
+		dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/spring?characterEncoding=UTF-8");
 		dataSource.setUsername("root");
 		dataSource.setPassword("123456");
 		dataSource.setDriverClassName("com.mysql.jdbc.Driver");
