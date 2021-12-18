@@ -35,24 +35,35 @@ import org.springframework.util.Assert;
 /**
  * Central delegate that manages resources and transaction synchronizations per thread.
  * To be used by resource management code but not by typical application code.
+ * <p>
+ * 管理每个线程的资源和事务的中央代理，供资源管理器使用，但是不提供给典型的应用程序代码使用
  *
  * <p>Supports one resource per key without overwriting, that is, a resource needs
  * to be removed before a new one can be set for the same key.
  * Supports a list of transaction synchronizations if synchronization is active.
+ * 支持每个资源一个Key而不是覆盖，也就是说，一个资源需要在一个新的相同的key被设置前移除。
+ * 如果资源同步是激活的，支持事务同步列表.
  *
  * <p>Resource management code should check for thread-bound resources, e.g. JDBC
  * Connections or Hibernate Sessions, via {@code getResource}. Such code is
- * normally not supposed to bind resources to threads, as this is the responsibility
- * of transaction managers. A further option is to lazily bind on first use if
- * transaction synchronization is active, for performing transactions that span
- * an arbitrary number of resources.
+ * normally not supposed to bind resources to threads, as this is the responsibility(责任)
+ * of transaction managers. A further(进一步，此外) option is to lazily(懒散的) bind on first use if
+ * transaction synchronization is active, for performing(表演，履行) transactions that span(横跨，跨越)
+ * an arbitrary(任意的，随心所欲) number of resources.
+ * 资源和线程绑定:
+ * 资源管理器应该校验每个线程绑定的资源，如 通过getResource 获取JDBC Connection 或 Hibernate Sessions。
+ * 这类的代码不应该将资源绑定到线程，因为这是资源管理器的职责。
+ * 另一种选择是，如果事务同步处于活动状态，则在首次使用时延迟绑定，以执行跨越任意数量资源的事务
  *
- * <p>Transaction synchronization must be activated and deactivated by a transaction
+ *
+ * <p>Transaction synchronization must be activated and deactivated(无效的，使失效) by a transaction
  * manager via {@link #initSynchronization()} and {@link #clearSynchronization()}.
- * This is automatically supported by {@link AbstractPlatformTransactionManager},
+ * This is automatically(自然的，自动的) supported by {@link AbstractPlatformTransactionManager},
  * and thus by all standard Spring transaction managers, such as
  * {@link org.springframework.transaction.jta.JtaTransactionManager} and
  * {@link org.springframework.jdbc.datasource.DataSourceTransactionManager}.
+ * 事务同步器必须由事务管理器通过initSynchronization() 、clearSynchronization()方法来弃用和停用。
+ *
  *
  * <p>Resource management code should only register synchronizations when this
  * manager is active, which can be checked via {@link #isSynchronizationActive};
@@ -74,25 +85,36 @@ import org.springframework.util.Assert;
  * @see org.springframework.jdbc.datasource.DataSourceUtils#getConnection
  * @since 02.06.2003
  */
+// 事务同步管理器 > 详见: 001.Spring-NOTES/000.Spring-FrameWork/038.Spring中的事务/002.Spring事务同步.md
 public abstract class TransactionSynchronizationManager {
 
 	private static final Log logger = LogFactory.getLog(TransactionSynchronizationManager.class);
 
+	// 事务资源
+	//  应用代码随事务的声明周期绑定的对象  比如：DataSourceTransactionManager有这么做：
+	//  TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
+	//  TransactionSynchronizationManager.bindResource(obtainDataSource(), suspendedResources);
+	//  通过方法doGetTransaction的执行，也可以得出这里存的是什么: K: DataSource;V:ConnectionHolder
 	private static final ThreadLocal<Map<Object, Object>> resources =
 			new NamedThreadLocal<>("Transactional resources");
 
+	// 事务使用的同步器
 	private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
 			new NamedThreadLocal<>("Transaction synchronizations");
 
+	// 事务名称
 	private static final ThreadLocal<String> currentTransactionName =
 			new NamedThreadLocal<>("Current transaction name");
 
+	// 事务是否只读
 	private static final ThreadLocal<Boolean> currentTransactionReadOnly =
 			new NamedThreadLocal<>("Current transaction read-only status");
 
+	// 事务的隔离级别
 	private static final ThreadLocal<Integer> currentTransactionIsolationLevel =
 			new NamedThreadLocal<>("Current transaction isolation level");
 
+	// 事务是否开启
 	private static final ThreadLocal<Boolean> actualTransactionActive =
 			new NamedThreadLocal<>("Actual transaction active");
 
@@ -269,8 +291,10 @@ public abstract class TransactionSynchronizationManager {
 	//-------------------------------------------------------------------------
 
 	/**
-	 * Return if transaction synchronization is active for the current thread.
+	 * Return if transaction synchronization(同步) is active for the current thread.
 	 * Can be called before register to avoid unnecessary instance creation.
+	 * <p>
+	 * 事务同步是什么
 	 *
 	 * @see #registerSynchronization
 	 */

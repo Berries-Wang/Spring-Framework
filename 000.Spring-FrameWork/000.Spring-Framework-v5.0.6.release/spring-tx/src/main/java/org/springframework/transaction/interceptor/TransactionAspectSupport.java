@@ -308,6 +308,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			// Standard transaction demarcation(n. 划分；划界；限界) with getTransaction and commit/rollback calls.
 			// 使用getTransaction和提交/回滚调用进行标准事务划分。
 			// 通过该方法，可以了解到Spring事务的传播行为了
+			// 创建事务
 			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
 			Object retVal = null;
 			try {
@@ -315,12 +316,14 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				// This will normally result in a target object being invoked.
 				retVal = invocation.proceedWithInvocation();
 			} catch (Throwable ex) {
-				// target invocation exception
+				// target invocation exception  // 事务异常处理，或回滚 或提交，依赖于配置
 				completeTransactionAfterThrowing(txInfo, ex);
 				throw ex;
 			} finally {
+				// 清理事务状态，或者回到上个事务状态
 				cleanupTransactionInfo(txInfo);
 			}
+			// 事务提交
 			commitTransactionAfterReturning(txInfo);
 			return retVal;
 		} else {
@@ -479,9 +482,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	 * Create a transaction if necessary based on the given TransactionAttribute.
 	 * <p>Allows callers to perform custom TransactionAttribute lookups through
 	 * the TransactionAttributeSource.
-	 *
+	 * <p>
 	 * 如果必要，则基于指定的TransactionAttribute创建一个事务
-	 *
+	 * <p>
 	 * 这里结合MySQL事务分析一下!!!
 	 *
 	 * @param txAttr                  the TransactionAttribute (may be {@code null})
@@ -574,6 +577,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 	/**
 	 * Handle a throwable, completing the transaction.
 	 * We may commit or roll back, depending on the configuration.
+	 * <p>
+	 * 处理异常，完成这个事务。
+	 * 或许提交或许回滚，依赖于配置
 	 *
 	 * @param txInfo information about the current transaction
 	 * @param ex     throwable encountered
@@ -584,6 +590,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				logger.trace("Completing transaction for [" + txInfo.getJoinpointIdentification() +
 						"] after exception: " + ex);
 			}
+
+			// 判断是否是否需要回滚
 			if (txInfo.transactionAttribute != null && txInfo.transactionAttribute.rollbackOn(ex)) {
 				try {
 					txInfo.getTransactionManager().rollback(txInfo.getTransactionStatus());
@@ -595,9 +603,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 					logger.error("Application exception overridden by rollback exception", ex);
 					throw ex2;
 				}
-			} else {
-				// We don't roll back on this exception.
-				// Will still roll back if TransactionStatus.isRollbackOnly() is true.
+			} else { //  事务不需要回滚
+				// We don't roll back on this exception. Will still roll back if TransactionStatus.isRollbackOnly() is true.
 				try {
 					txInfo.getTransactionManager().commit(txInfo.getTransactionStatus());
 				} catch (TransactionSystemException ex2) {
