@@ -512,6 +512,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		TransactionStatus status = null;
 		if (txAttr != null) {
 			if (tm != null) {
+				// 这里会根据事务的传播行为来创建返回符合对应条件的事务，可能是一个新的事务，可能是之前存在的事务，具体还是
+				// 根据事务的传播行为
 				status = tm.getTransaction(txAttr);
 			} else {
 				if (logger.isDebugEnabled()) {
