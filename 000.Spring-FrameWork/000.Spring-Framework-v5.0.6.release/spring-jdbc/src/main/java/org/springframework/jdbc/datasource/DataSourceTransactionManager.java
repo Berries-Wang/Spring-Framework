@@ -305,7 +305,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			// Switch to manual(手工的，手动的) commit if necessary. This is very expensive in some JDBC drivers,
 			// so we don't want to do it unnecessarily (for example if we've explicitly(明确地，明白的)
 			// configured the connection pool to set it already).
-			// 如果需要，切换为手动提交。在一些JDBC Driver中，这是一个非常高昂的代码。所以在非必要的情况下，我们并不想这样做
+			// 如果需要，切换为手动提交。在一些JDBC Driver中，这是一个 >>"非常高昂"<< 的代码。所以在非必要的情况下，我们并不想这样做
 			if (con.getAutoCommit()) {
 				txObject.setMustRestoreAutoCommit(true);
 				if (logger.isDebugEnabled()) {
