@@ -626,7 +626,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 		// 如果允许事务同步
 		if (TransactionSynchronizationManager.isSynchronizationActive()) {
 
-			// 中断事务同步
+			// 中断事务同步-> 这里会执行所有同步器的org.springframework.transaction.support.TransactionSynchronization.suspend方法,
+			// 再移除所有的事务同步器，最后将事务管理器返回
 			List<TransactionSynchronization> suspendedSynchronizations = doSuspendSynchronization();
 
 			try {
