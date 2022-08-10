@@ -123,15 +123,20 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
 
 	/**
 	 * Expose(v.暴露;揭露;n.揭露;曝光;) AutowireCapableBeanFactory functionality(n.功能) for this context.
-	 * <p>为该上下文暴露AutowireCapableBeanFactory的功能</p>
+	 * <p>为该上下文公开AutowireCapableBeanFactory的功能</p>
 	 *
-	 * <p>This is not typically used by application code, except for the purpose of
-	 * initializing bean instances that live outside of the application context,
+	 * <p>This is not typically(adv.典型地，有代表性地；一般，通常；一向如此地，不出所料地) used by application code,
+	 * except(v.不包括，把……排除在外;prep.除……外，不包括;conj.除了;只是;要不是;) for the purpose of  initializing bean instances
+	 * that live outside of the application context,
 	 * applying the Spring bean lifecycle (fully or partly) to them.
-	 * <p>Alternatively, the internal BeanFactory exposed by the
-	 * {@link ConfigurableApplicationContext} interface offers access to the
-	 * {@link AutowireCapableBeanFactory} interface too. The present method mainly
-	 * serves as a convenient, specific facility on the ApplicationContext interface.
+	 * <p>(为了初始化应用上下文外的Bean)这通常不会被应用程序代码使用，除非是为了初始化存在于应用程序上下文之外的bean实例，将Spring bean生命周期(全部或部分)应用到它们</p>
+	 *
+	 * <p>Alternatively(adv.另外), the internal BeanFactory exposed by the
+	 * {@link ConfigurableApplicationContext} interface offers(n.提议；出价；试图（offer 的复数）；求婚;v.提供；试图（offer 的三单形式）；求婚)
+	 * access to the  {@link AutowireCapableBeanFactory} interface too. The present method mainly
+	 * serves as a convenient(adj.方便的，便利的；附近的，方便到达的), specific(adj.明确的，具体的；特定的；特有的，独特的;n.细节，详情；特效药) facility(n.设施，设备；卫生间；天赋，才能;) on the ApplicationContext interface.
+	 * <p>另外，由ConfigurableApplicationContext接口公开的内部BeanFactory也提供了对AutowireCapableBeanFactory接口的访问.目前的方法主要用作ApplicationContext接口上的一种方便的、特定的工具。</p>
+	 *
 	 * <p><b>NOTE: As of 4.2, this method will consistently throw IllegalStateException
 	 * after the application context has been closed.</b> In current Spring Framework
 	 * versions, only refreshable application contexts behave that way; as of 4.2,
