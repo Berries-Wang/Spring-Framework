@@ -21,6 +21,7 @@ package org.springframework.context;
  * Serves as super-interface for {@link ApplicationContext}.
  *
  * <p>接口封装了事件发布功能, 作为ApplicationContext的父接口</p>
+ * <p>文档可参考: 001.Spring-NOTES/000.Spring-FrameWork/001.ApplicationEventPublisher/000.ApplicationEventPublisher使用.md</p>
  *
  * <p>怎么使用?</p>
  * @author Juergen Hoeller
