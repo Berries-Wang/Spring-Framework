@@ -1,0 +1,58 @@
+plugins {
+	id 'kotlin'
+	id 'io.spring.antora.generate-antora-yml' version '0.0.1'
+	id 'org.antora' version '1.0.0'
+}
+
+description = "Spring Framework Docs"
+
+apply from: "${rootDir}/gradle/ide.gradle"
+apply from: "${rootDir}/gradle/publications.gradle"
+
+antora {
+	options = [clean: true, fetch: !project.gradle.startParameter.offline, stacktrace: true]
+	environment = [
+			'BUILD_REFNAME': 'HEAD',
+			'BUILD_VERSION': project.version,
+	]
+}
+
+tasks.named("generateAntoraYml") {
+	asciidocAttributes = project.provider( {
+		return  ["spring-version": project.version ]
+	} )
+}
+
+tasks.register("generateAntoraResources") {
+	dependsOn 'generateAntoraYml'
+}
+
+jar {
+	enabled = false
+}
+
+javadoc {
+	enabled = false
+}
+
+repositories {
+	maven {
+		url "https://repo.spring.io/release"
+	}
+}
+
+dependencies {
+	api(project(":spring-context"))
+	api(project(":spring-jdbc"))
+	api(project(":spring-jms"))
+	api(project(":spring-web"))
+	api(project(":spring-webflux"))
+
+	api("com.oracle.database.jdbc:ojdbc11")
+	api("jakarta.jms:jakarta.jms-api")
+	api("jakarta.servlet:jakarta.servlet-api")
+	api("org.jetbrains.kotlin:kotlin-stdlib")
+
+	implementation(project(":spring-core-test"))
+	implementation("org.assertj:assertj-core")
+}
