@@ -1,0 +1,13 @@
+{
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-1.8",
+            "path": "/home/wei/app_space/OpenJDK/OpenJDK8u422-B05",
+        },
+        { // For Spring-Framework-6.1.14-GA
+            "name": "JavaSE-21",
+            "path": "/home/wei/app_space/OpenJDK/OpenJDK-21.0.5+11",
+            "default": true
+        },
+    ]
+}

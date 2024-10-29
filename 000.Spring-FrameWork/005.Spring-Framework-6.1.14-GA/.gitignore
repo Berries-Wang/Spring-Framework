@@ -48,7 +48,7 @@ test-output
 atlassian-ide-plugin.xml
 
 # VS Code
-.vscode/
+!.vscode/
 
 cached-antora-playbook.yml
 
