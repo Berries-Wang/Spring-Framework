@@ -43,7 +43,7 @@ include "framework-docs"
 include "framework-platform"
 include "integration-tests"
 
-rootProject.name = "spring"
+rootProject.name = "005.Spring-Framework-6.1.14-GA"
 rootProject.children.each {project ->
 	project.buildFileName = "${project.name}.gradle"
 }
@@ -63,4 +63,5 @@ settings.gradle.projectsLoaded {
 		}
 	}
 }
+include 'Spring-Debug'
 
