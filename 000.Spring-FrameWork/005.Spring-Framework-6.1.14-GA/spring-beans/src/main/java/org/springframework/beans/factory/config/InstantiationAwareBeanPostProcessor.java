@@ -21,46 +21,44 @@ import org.springframework.beans.PropertyValues;
 import org.springframework.lang.Nullable;
 
 /**
- * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback,
- * and a callback after instantiation but before explicit properties are set or
- * autowiring occurs.
+ * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback, and a callback after
+ * instantiation but before explicit properties are set or autowiring occurs.(BeanPostProcessor
+ * 的子接口，添加实例化前回调，以及实例化后但在设置显式属性或自动装配发生之前的回调。)
  *
  * <p>Typically used to suppress default instantiation for specific target beans,
- * for example to create proxies with special TargetSources (pooling targets,
- * lazily initializing targets, etc), or to implement additional injection strategies
- * such as field injection.
+ * for example to create proxies with special TargetSources (pooling targets, lazily initializing targets, etc), or to
+ * implement additional injection strategies such as field injection.(通常用于抑制特定目标 bean 的默认实例化，例如使用特殊
+ * TargetSources（池化目标、延迟初始化目标等）创建代理，或实现其他注入策略（如字段注入）。)
  *
  * <p><b>NOTE:</b> This interface is a special purpose interface, mainly for
- * internal use within the framework. It is recommended to implement the plain
- * {@link BeanPostProcessor} interface as far as possible.
+ * internal use within the framework. It is recommended to implement the plain {@link BeanPostProcessor} interface as
+ * far as possible.(此接口是特殊用途的接口，主要用于框架内部使用。建议尽可能实现普通的 BeanPostProcessor 接口。)
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
- * @since 1.2
  * @see org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator#setCustomTargetSourceCreators
  * @see org.springframework.aop.framework.autoproxy.target.LazyInitTargetSourceCreator
+ * @since 1.2
  */
 public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
 	/**
-	 * Apply this BeanPostProcessor <i>before the target bean gets instantiated</i>.
-	 * The returned bean object may be a proxy to use instead of the target bean,
-	 * effectively suppressing default instantiation of the target bean.
+	 * Apply this BeanPostProcessor <i>before the target bean gets instantiated</i>. The returned bean object may be a
+	 * proxy to use instead of the target bean, effectively suppressing default instantiation of the target bean.
 	 * <p>If a non-null object is returned by this method, the bean creation process
-	 * will be short-circuited. The only further processing applied is the
-	 * {@link #postProcessAfterInitialization} callback from the configured
-	 * {@link BeanPostProcessor BeanPostProcessors}.
+	 * will be short-circuited. The only further processing applied is the {@link #postProcessAfterInitialization}
+	 * callback from the configured {@link BeanPostProcessor BeanPostProcessors}.
 	 * <p>This callback will be applied to bean definitions with their bean class,
-	 * as well as to factory-method definitions in which case the returned bean type
-	 * will be passed in here.
+	 * as well as to factory-method definitions in which case the returned bean type will be passed in here.
 	 * <p>Post-processors may implement the extended
-	 * {@link SmartInstantiationAwareBeanPostProcessor} interface in order
-	 * to predict the type of the bean object that they are going to return here.
+	 * {@link SmartInstantiationAwareBeanPostProcessor} interface in order to predict the type of the bean object that
+	 * they are going to return here.
 	 * <p>The default implementation returns {@code null}.
+	 *
 	 * @param beanClass the class of the bean to be instantiated
-	 * @param beanName the name of the bean
-	 * @return the bean object to expose instead of a default instance of the target bean,
-	 * or {@code null} to proceed with default instantiation
+	 * @param beanName  the name of the bean
+	 * @return the bean object to expose instead of a default instance of the target bean, or {@code null} to proceed
+	 * 		with default instantiation
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see #postProcessAfterInstantiation
 	 * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getBeanClass()
@@ -72,17 +70,17 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
-	 * Perform operations after the bean has been instantiated, via a constructor or factory method,
-	 * but before Spring property population (from explicit properties or autowiring) occurs.
+	 * Perform operations after the bean has been instantiated, via a constructor or factory method, but before Spring
+	 * property population (from explicit properties or autowiring) occurs.
 	 * <p>This is the ideal callback for performing custom field injection on the given bean
 	 * instance, right before Spring's autowiring kicks in.
 	 * <p>The default implementation returns {@code true}.
-	 * @param bean the bean instance created, with properties not having been set yet
+	 *
+	 * @param bean     the bean instance created, with properties not having been set yet
 	 * @param beanName the name of the bean
-	 * @return {@code true} if properties should be set on the bean; {@code false}
-	 * if property population should be skipped. Normal implementations should return {@code true}.
-	 * Returning {@code false} will also prevent any subsequent InstantiationAwareBeanPostProcessor
-	 * instances being invoked on this bean instance.
+	 * @return {@code true} if properties should be set on the bean; {@code false} if property population should be
+	 * 		skipped. Normal implementations should return {@code true}. Returning {@code false} will also prevent any
+	 * 		subsequent InstantiationAwareBeanPostProcessor instances being invoked on this bean instance.
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see #postProcessBeforeInstantiation
 	 */
@@ -91,14 +89,14 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
-	 * Post-process the given property values before the factory applies them
-	 * to the given bean.
+	 * Post-process the given property values before the factory applies them to the given bean.
 	 * <p>The default implementation returns the given {@code pvs} as-is.
-	 * @param pvs the property values that the factory is about to apply (never {@code null})
-	 * @param bean the bean instance created, but whose properties have not yet been set
+	 *
+	 * @param pvs      the property values that the factory is about to apply (never {@code null})
+	 * @param bean     the bean instance created, but whose properties have not yet been set
 	 * @param beanName the name of the bean
-	 * @return the actual property values to apply to the given bean (can be the passed-in
-	 * PropertyValues instance), or {@code null} to skip property population
+	 * @return the actual property values to apply to the given bean (can be the passed-in PropertyValues instance), or
+	 *        {@code null} to skip property population
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @since 5.1
 	 */

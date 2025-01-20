@@ -8,6 +8,8 @@ public class SpringDebugApplication {
 	public static void main(String[] args) {
 		ApplicationContext app = new AnnotationConfigApplicationContext("org.Berries.Wang.Spring.Debug");
 
+		//ApplicationContext app = new ClassPathXmlApplicationContext("SpringDebugApplicationContent.xml");
+
 		ServiceA serviceA = app.getBean(ServiceA.class);
 		System.out.println(serviceA.sayServiceA());
 	}

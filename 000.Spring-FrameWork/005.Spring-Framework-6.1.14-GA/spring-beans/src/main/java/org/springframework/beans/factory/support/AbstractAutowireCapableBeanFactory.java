@@ -527,8 +527,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
-		// Eagerly cache singletons to be able to resolve circular references
-		// even when triggered by lifecycle interfaces like BeanFactoryAware.
+		/**
+		 *  Eagerly cache singletons to be able to resolve circular references
+		 *  even when triggered by lifecycle interfaces like BeanFactoryAware.
+		 *  (急切地缓存单例，以便能够解决循环引用，即使是由 BeanFactoryAware 等生命周期接口触发时也是如此。)
+		 */
 		boolean earlySingletonExposure =
 				(mbd.isSingleton() && this.allowCircularReferences && isSingletonCurrentlyInCreation(beanName));
 		if (earlySingletonExposure) {
@@ -536,6 +539,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace(
 						"Eagerly caching bean '" + beanName + "' to allow for resolving potential circular references");
 			}
+			// 缓存: 添加第二级缓存 ,即 提前暴露的Bean实例
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -1137,8 +1141,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Candidate constructors for autowiring?
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
-		if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
-				mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
+		if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR || mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(
+				args)) {
 			return autowireConstructor(beanName, mbd, ctors, args);
 		}
 
@@ -1346,6 +1350,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
+		/*
+		 * mbd.getResolvedAutowireMode() ， 这种就是在配置文件中定义的Bean，例如
+		 * <pre>
+		 *    <bean id="serviceA" class="org.Berries.Wang.Spring.Debug.service.ServiceA" autowire="byName">
+		 * 		<property name="serviceB" ref="serviceB"/>
+		 * 	  </bean>
+		 *
+		 * 	  此时，Bean serviceA的resolvedAutowireMode为1 (AUTOWIRE_BY_NAME)
+		 * </pre>
+		 */
 		int resolvedAutowireMode = mbd.getResolvedAutowireMode();
 		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
@@ -1364,6 +1378,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				pvs = mbd.getPropertyValues();
 			}
 			for (InstantiationAwareBeanPostProcessor bp : getBeanPostProcessorCache().instantiationAware) {
+				/*
+				 * 属性装配: 会有 @Autowired属性注入: AutowiredAnnotationBeanPostProcessor
+				 * 以及一些其他的BeanPostProcessor,会对不同的注解进行处理
+				 */
 				PropertyValues pvsToUse = bp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
 				if (pvsToUse == null) {
 					return;
