@@ -10,10 +10,10 @@ repositories {
 
 
 dependencies {
-    api(project(":spring-context"))
-    api(project(":spring-aspects"))
-    api(project(":spring-jdbc"))
-    api(project(":spring-tx"))
+    implementation(project(":spring-context"))
+    implementation(project(":spring-aspects"))
+    implementation(project(":spring-jdbc"))
+    implementation(project(":spring-tx"))
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }

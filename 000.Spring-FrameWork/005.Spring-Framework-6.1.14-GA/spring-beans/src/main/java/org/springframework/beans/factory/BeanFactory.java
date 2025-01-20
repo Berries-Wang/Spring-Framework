@@ -258,16 +258,20 @@ public interface BeanFactory {
 
 	/**
 	 * Does this bean factory contain a bean definition or externally registered singleton
-	 * instance with the given name?
+	 * instance with the given name?(此 bean 工厂是否包含具有给定名称的 bean 定义或外部注册的单例实例？)
 	 * <p>If the given name is an alias, it will be translated back to the corresponding
 	 * canonical bean name.
 	 * <p>If this factory is hierarchical, will ask any parent factory if the bean cannot
-	 * be found in this factory instance.
+	 * be found in this factory instance.(如果给定名称是别名，则将将其转换回相应的规范 bean 名称。
+	 * 如果此工厂是分层的，则将询问任何父工厂是否无法在此工厂实例中找到 bean。)
+	 *
 	 * <p>If a bean definition or singleton instance matching the given name is found,
 	 * this method will return {@code true} whether the named bean definition is concrete
 	 * or abstract, lazy or eager, in scope or not. Therefore, note that a {@code true}
 	 * return value from this method does not necessarily indicate that {@link #getBean}
-	 * will be able to obtain an instance for the same name.
+	 * will be able to obtain an instance for the same name.(如果找到与给定名称匹配的 bean 定义或单例实例，则此方法将返回 true，
+	 * 无论命名的 bean 定义是具体的还是抽象的、惰性的还是急切的、是否在范围内。
+	 * 因此，请注意，此方法的 true 返回值并不一定表示 getBean 将能够获得相同名称的实例。)
 	 * @param name the name of the bean to query
 	 * @return whether a bean with the given name is present
 	 */

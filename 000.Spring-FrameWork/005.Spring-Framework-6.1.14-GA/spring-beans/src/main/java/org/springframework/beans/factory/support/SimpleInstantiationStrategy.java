@@ -16,10 +16,6 @@
 
 package org.springframework.beans.factory.support;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
@@ -27,6 +23,10 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Simple object instantiation strategy for use in a BeanFactory.
@@ -43,7 +43,6 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
 	private static final ThreadLocal<Method> currentlyInvokedFactoryMethod = new ThreadLocal<>();
 
-
 	/**
 	 * Return the factory method currently being invoked or {@code null} if none.
 	 * <p>Allows factory method implementations to determine whether the current
@@ -55,28 +54,32 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	}
 
 	/**
-	 * Set the factory method currently being invoked or {@code null} to remove
-	 * the  current value, if any.
+	 * Set the factory method currently being invoked or {@code null} to remove the  current value, if any.
+	 *
 	 * @param method the factory method currently being invoked or {@code null}
 	 * @since 6.0
 	 */
 	public static void setCurrentlyInvokedFactoryMethod(@Nullable Method method) {
 		if (method != null) {
 			currentlyInvokedFactoryMethod.set(method);
-		}
-		else {
+		} else {
 			currentlyInvokedFactoryMethod.remove();
 		}
 	}
 
-
+	/**
+	 * <pre>
+	 *     若BeanClass有覆盖方法，则先使用CGLIB创建子类，再创建子类对象，之后再进行依赖注入
+	 *     若BeanClass无覆盖方法,则直接使用默认的构造函数进行初始化(即使构造函数是Private,也可以创建)
+	 * </pre>
+	 */
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
-				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
+				constructorToUse = (Constructor<?>)bd.resolvedConstructorOrFactoryMethod;
 				if (constructorToUse == null) {
 					Class<?> clazz = bd.getBeanClass();
 					if (clazz.isInterface()) {
@@ -85,50 +88,46 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					try {
 						constructorToUse = clazz.getDeclaredConstructor();
 						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
-					}
-					catch (Throwable ex) {
+					} catch (Throwable ex) {
 						throw new BeanInstantiationException(clazz, "No default constructor found", ex);
 					}
 				}
 			}
 			return BeanUtils.instantiateClass(constructorToUse);
-		}
-		else {
+		} else {
 			// Must generate CGLIB subclass.
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}
 
 	/**
-	 * Subclasses can override this method, which is implemented to throw
-	 * UnsupportedOperationException, if they can instantiate an object with
-	 * the Method Injection specified in the given RootBeanDefinition.
-	 * Instantiation should use a no-arg constructor.
+	 * Subclasses can override this method, which is implemented to throw UnsupportedOperationException, if they can
+	 * instantiate an object with the Method Injection specified in the given RootBeanDefinition. Instantiation should
+	 * use a no-arg constructor.
 	 */
-	protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
+	protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName,
+			BeanFactory owner) {
 		throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
 	}
 
 	@Override
-	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
-			Constructor<?> ctor, Object... args) {
+	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner, Constructor<?> ctor,
+			Object... args) {
 
 		if (!bd.hasMethodOverrides()) {
 			return BeanUtils.instantiateClass(ctor, args);
-		}
-		else {
+		} else {
 			return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
 		}
 	}
 
 	/**
-	 * Subclasses can override this method, which is implemented to throw
-	 * UnsupportedOperationException, if they can instantiate an object with
-	 * the Method Injection specified in the given RootBeanDefinition.
-	 * Instantiation should use the given constructor and parameters.
+	 * Subclasses can override this method, which is implemented to throw UnsupportedOperationException, if they can
+	 * instantiate an object with the Method Injection specified in the given RootBeanDefinition. Instantiation should
+	 * use the given constructor and parameters.
 	 */
-	protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName,
-			BeanFactory owner, @Nullable Constructor<?> ctor, Object... args) {
+	protected Object instantiateWithMethodInjection(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
+			@Nullable Constructor<?> ctor, Object... args) {
 
 		throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
 	}
@@ -148,32 +147,29 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 					result = new NullBean();
 				}
 				return result;
-			}
-			finally {
+			} finally {
 				setCurrentlyInvokedFactoryMethod(priorInvokedFactoryMethod);
 			}
-		}
-		catch (IllegalArgumentException ex) {
+		} catch (IllegalArgumentException ex) {
 			if (factoryBean != null && !factoryMethod.getDeclaringClass().isAssignableFrom(factoryBean.getClass())) {
 				throw new BeanInstantiationException(factoryMethod,
-						"Illegal factory instance for factory method '" + factoryMethod.getName() + "'; " +
-						"instance: " + factoryBean.getClass().getName(), ex);
+						"Illegal factory instance for factory method '" + factoryMethod.getName() + "'; " + "instance: " + factoryBean.getClass()
+								.getName(), ex);
 			}
 			throw new BeanInstantiationException(factoryMethod,
-					"Illegal arguments to factory method '" + factoryMethod.getName() + "'; " +
-					"args: " + StringUtils.arrayToCommaDelimitedString(args), ex);
-		}
-		catch (IllegalAccessException ex) {
+					"Illegal arguments to factory method '" + factoryMethod.getName() + "'; " + "args: " + StringUtils.arrayToCommaDelimitedString(
+							args), ex);
+		} catch (IllegalAccessException ex) {
 			throw new BeanInstantiationException(factoryMethod,
 					"Cannot access factory method '" + factoryMethod.getName() + "'; is it public?", ex);
-		}
-		catch (InvocationTargetException ex) {
-			String msg = "Factory method '" + factoryMethod.getName() + "' threw exception with message: " +
-					ex.getTargetException().getMessage();
-			if (bd.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory cbf &&
-					cbf.isCurrentlyInCreation(bd.getFactoryBeanName())) {
-				msg = "Circular reference involving containing bean '" + bd.getFactoryBeanName() + "' - consider " +
-						"declaring the factory method as static for independence from its containing instance. " + msg;
+		} catch (InvocationTargetException ex) {
+			String msg =
+					"Factory method '" + factoryMethod.getName() + "' threw exception with message: " + ex.getTargetException()
+							.getMessage();
+			if (bd.getFactoryBeanName() != null && owner instanceof ConfigurableBeanFactory cbf && cbf.isCurrentlyInCreation(
+					bd.getFactoryBeanName())) {
+				msg =
+						"Circular reference involving containing bean '" + bd.getFactoryBeanName() + "' - consider " + "declaring the factory method as static for independence from its containing instance. " + msg;
 			}
 			throw new BeanInstantiationException(factoryMethod, msg, ex.getTargetException());
 		}
