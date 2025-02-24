@@ -126,6 +126,9 @@ configure([rootProject] + javaProjects) { project ->
 			//"https://www.javadoc.io/doc/com.google.code.findbugs/jsr305/3.0.2/"
 	] as String[]
 }
+javadoc {
+	failOnError=false
+}
 
 configure(moduleProjects) { project ->
 	apply from: "${rootDir}/gradle/spring-module.gradle"

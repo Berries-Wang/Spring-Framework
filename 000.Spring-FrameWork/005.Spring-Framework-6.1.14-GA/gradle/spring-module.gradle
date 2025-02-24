@@ -82,6 +82,8 @@ javadoc {
 	// checks for 'reference' on top of 'syntax'.
 	logging.captureStandardError LogLevel.INFO
 	logging.captureStandardOutput LogLevel.INFO  // suppress "## warnings" message
+	failOnError=false
+	options.encoding="GBK"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
