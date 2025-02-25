@@ -104,7 +104,13 @@ final class PostProcessorRegistrationDelegate {
 			// PriorityOrdered, Ordered, and the rest.
 			List<BeanDefinitionRegistryPostProcessor> currentRegistryProcessors = new ArrayList<>();
 
-			// First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			/**
+			 * First, invoke the BeanDefinitionRegistryPostProcessors that implement PriorityOrdered.
+			 * (首先，调用BeanDefinitionRegistryPostProcessors来实现PriorityOrdered。)
+			 * <pre>
+			 *     这里是 获取类型为 {@link  BeanDefinitionRegistryPostProcessor} 的Bean
+			 * </pre>
+			 */
 			String[] postProcessorNames =
 					beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class, true, false);
 			for (String ppName : postProcessorNames) {

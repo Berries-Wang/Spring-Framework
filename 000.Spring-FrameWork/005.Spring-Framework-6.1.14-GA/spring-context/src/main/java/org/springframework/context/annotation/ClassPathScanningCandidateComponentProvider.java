@@ -554,7 +554,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	 * Determine whether the given class is a candidate component based on any
 	 * {@code @Conditional} annotations.
 	 * @param metadataReader the ASM ClassReader for the class
-	 * @return whether the class qualifies as a candidate component
+	 * @return whether the class qualifies(使有资格) as a candidate(候选人) component
 	 */
 	private boolean isConditionMatch(MetadataReader metadataReader) {
 		if (this.conditionEvaluator == null) {
