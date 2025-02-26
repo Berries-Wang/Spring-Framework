@@ -1740,9 +1740,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			return beanInstance;
 		}
 
-		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
-		// If it's a FactoryBean, we use it to create a bean instance, unless the
-		// caller actually wants a reference to the factory.
+		/**
+		 *  Now we have the bean instance, which may be a normal bean or a FactoryBean.
+		 *  If it's a FactoryBean, we use it to create a bean instance, unless the caller actually wants a reference to the factory.
+		 *  (现在我们有了bean实例，它可以是一个普通的bean，`也可以`是一个FactoryBean。如果它是一个FactoryBean，我们使用它来创建一个bean实例，除非调用者确实需要对工厂的引用。)
+		 *  > 当IOC容器里的当前类型的对象是一个FactoryBean的时候，那此时就要用该FactoryBean来创建新的对象。
+		 */
 		if (!(beanInstance instanceof FactoryBean<?> factoryBean)) {
 			return beanInstance;
 		}
