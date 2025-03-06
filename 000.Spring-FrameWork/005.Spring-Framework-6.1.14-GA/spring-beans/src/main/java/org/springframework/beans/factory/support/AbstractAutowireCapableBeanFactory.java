@@ -456,7 +456,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
-			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			/*
+			 * Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			 * (给BeanPostProcessors一个返回代理而不是目标bean实例的机会。)
+			 * <p> 对象创建之前的操作!!!
+			 */
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -505,9 +509,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (mbd.isSingleton()) {
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
+
 		if (instanceWrapper == null) {
+			// 通过构造函数创建一个Bean出来
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
+
 		Object bean = instanceWrapper.getWrappedInstance();
 		Class<?> beanType = instanceWrapper.getWrappedClass();
 		if (beanType != NullBean.class) {
@@ -543,10 +550,20 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
-		// Initialize the bean instance.
+		// Initialize the bean instance.(创建业务上使用的Bean)
 		Object exposedObject = bean;
 		try {
+			// 填充属性
 			populateBean(beanName, mbd, instanceWrapper);
+
+			/**
+			 *  初始化Bean(初始化Spring IOC可以使用的Bean),之前初始化只是初始化Bean Class实例，现在才是真正初始化Spring容器能够使用的Bean.
+			 * 例如:
+			 *    1. 根据Bean Class实例 ， 以及配置，判断是否需要创建对应的代理对象。
+			 *
+			 * 注意:
+			 *    f779a72f00ad4b4b9c59f82657d2231c . 这里`不一定`会创建代理对象，详见 {@link org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator.postProcessAfterInitialization} 代码注释
+			 */
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		} catch (Throwable ex) {
 			if (ex instanceof BeanCreationException bce && beanName.equals(bce.getBeanName())) {
@@ -556,10 +573,27 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
+		/**
+		 * 如果Bean允许提前暴露:
+		 */
 		if (earlySingletonExposure) {
+			// 从第一 第二 级缓存中获取Bean
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
-				if (exposedObject == bean) {
+				// 即当Bean不是代理对象（或者说没有经过再次包装）,即原始的Bean Class实例
+				if (exposedObject /*业务上可以使用的Bean，即包装后(若需要)的Bean*/ == bean/*原始Bean: 直接通过Bean Class实例出来，未包装的Bean实例*/) {
+					/**
+					 * 直接使用 earlySingletonReference 就好了
+					 * Why?
+					 * 通过注意事项 ‘f779a72f00ad4b4b9c59f82657d2231c’ 并经过分析，可以发现：
+					 *   当  exposedObject == bean 为true是，说明发生了循环依赖，此时的 `earlySingletonReference` 已经是一个
+					 *   业务上可以使用的Bean了(被包装过的 ) ， 那么此时，就直接用 earlySingletonReference 了，而且
+					 *   此时的 `exposedObject` 也并不是一个业务上能用的Bean(没有被包装过的)
+					 *
+					 * 名词释义:
+					 *   未包装的：即 bean.getClass() 为 真实的Bean class ，如： userMapper(class: com.Berries.Wang.UserMapper)
+					 *   包装过的: 处理过的，处理的意思是 包括但不限于代理过的，如 bean.getClass() 是生成后代理类的Class name，而不是 ‘com.Berries.Wang.UserMapper’
+					 */
 					exposedObject = earlySingletonReference;
 				} else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
 					String[] dependentBeans = getDependentBeans(beanName);
@@ -580,10 +614,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Register bean as disposable.
 		try {
+			// Bean销毁相关
 			registerDisposableBeanIfNecessary(beanName, bean, mbd);
 		} catch (BeanDefinitionValidationException ex) {
-			throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Invalid destruction signature",
-					ex);
+			throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
 		}
 
 		return exposedObject;
@@ -1733,12 +1767,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
+			// 调用Bean定义的 init 方法
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		} catch (Throwable ex) {
 			throw new BeanCreationException((mbd != null ? mbd.getResourceDescription() : null), beanName,
 					ex.getMessage(), ex);
 		}
 		if (mbd == null || !mbd.isSynthetic()) {
+			/**
+			 * 这里会做哪些事情呢?
+			 * 1. 创建代理对象（如果有需要）
+			 */
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}
 

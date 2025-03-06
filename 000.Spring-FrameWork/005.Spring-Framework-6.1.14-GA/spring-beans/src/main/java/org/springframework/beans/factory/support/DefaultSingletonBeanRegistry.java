@@ -174,9 +174,12 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		 * > 初始化完备: 属性注入完成
 		 */
 		Object singletonObject = this.singletonObjects.get(beanName);
+
 		// 当正在创建中...
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			// 从第二级缓存中获取
 			singletonObject = this.earlySingletonObjects.get(beanName);
+
 			if (singletonObject == null && allowEarlyReference) {
 				synchronized (this.singletonObjects) {
 					// Consistent creation of early reference within full singleton lock
@@ -211,6 +214,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
 		synchronized (this.singletonObjects) {
+			// 从第一级缓存中获取单例Bean
 			Object singletonObject = this.singletonObjects.get(beanName);
 			if (singletonObject == null) {
 				if (this.singletonsCurrentlyInDestruction) {
@@ -227,7 +231,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
-					// 从BeanFactory中获取单例Bean
+					// 从ObjectFactory中获取单例Bean
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				} catch (IllegalStateException ex) {
@@ -250,7 +254,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					}
 					afterSingletonCreation(beanName);
 				}
-				if (newSingleton) {
+
+				if (newSingleton) { // 若是新建的单例Bean
 					// 维护第一级缓存
 					addSingleton(beanName, singletonObject);
 				}

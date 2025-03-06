@@ -195,7 +195,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		String beanName = transformedBeanName(name);
 		Object beanInstance;
 
-		// Eagerly check singleton cache for manually registered singletons.
+		/**
+		 * Eagerly check singleton cache for manually registered singletons.(主动检查手工注册的单例缓存。)
+		 * 依次从三级缓存中获取缓存单例Bean
+		 */
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
@@ -208,8 +211,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 			beanInstance = getObjectForBeanInstance(sharedInstance, name, beanName, null);
 		} else {
-			// Fail if we're already creating this bean instance:
-			// We're assumably within a circular reference.
+			// Fail if we're already creating this bean instance: We're assumably within a circular reference.
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
@@ -346,8 +348,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				return (T)convertedBean;
 			} catch (TypeMismatchException ex) {
 				if (logger.isTraceEnabled()) {
-					logger.trace(
-							"Failed to convert bean '" + name + "' to required type '" + ClassUtils.getQualifiedName(
+					logger.trace("Failed to convert bean '" + name + "' to required type '" + ClassUtils.getQualifiedName(
 									requiredType) + "'", ex);
 				}
 				throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
@@ -1798,6 +1799,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Add the given bean to the list of disposable beans in this factory, registering its DisposableBean interface
 	 * and/or the given destroy method to be called on factory shutdown (if applicable). Only applies to singletons.
+	 * (将给定bean添加到此工厂中的一次性bean列表中，注册其DisposableBean接口和/或给定的destroy方法，以便在工厂关闭时调用（如果适用）。只适用于单例。)
 	 *
 	 * @param beanName the name of the bean
 	 * @param bean     the bean instance
