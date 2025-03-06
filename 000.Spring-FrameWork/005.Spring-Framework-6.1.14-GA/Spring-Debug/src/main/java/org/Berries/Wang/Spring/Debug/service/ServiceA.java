@@ -11,6 +11,7 @@ public class ServiceA {
 	@Resource
 	private ServiceB serviceB;
 
+
 	public String sayServiceA() {
 		return "Service_A";
 	}
