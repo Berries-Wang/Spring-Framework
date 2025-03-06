@@ -546,7 +546,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace(
 						"Eagerly caching bean '" + beanName + "' to allow for resolving potential circular references");
 			}
-			// 缓存: 添加第二级缓存 ,即 提前暴露的Bean实例
+			// 缓存: 维护第三级缓存!!!
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -574,7 +574,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		/**
-		 * 如果Bean允许提前暴露:
+		 * 如果Bean允许提前暴露: 那就会存在循环依赖的问题
 		 */
 		if (earlySingletonExposure) {
 			// 从第一 第二 级缓存中获取Bean

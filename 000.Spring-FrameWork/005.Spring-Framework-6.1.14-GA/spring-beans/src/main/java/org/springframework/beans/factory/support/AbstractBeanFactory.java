@@ -198,6 +198,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		/**
 		 * Eagerly check singleton cache for manually registered singletons.(主动检查手工注册的单例缓存。)
 		 * 依次从三级缓存中获取缓存单例Bean
+		 * ---> 会调用三级缓存的ObjectFactory去获取Bean实例，三级缓存在哪里维护的? think! think!
+		 * -----> 通过三级缓存代码(第一 第二级缓存中没有数据)，这里获取到的Bean可能是包装过的（如果有需要的话），但是属性还未注入
 		 */
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
@@ -275,6 +277,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				// Create bean instance.
 				if (mbd.isSingleton()) {
+					/**
+					 * 从缓存中获取,如果第一 第二级缓存没有，则使用传入的ObjectFactory来创建
+					 */
 					sharedInstance = getSingleton(beanName, /*ObjectFactory*/() -> {
 						try {
 							return createBean(beanName, mbd, args);

@@ -763,6 +763,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 			} else {
 				value = resolveFieldValue(field, bean, beanName);
 			}
+			// 当获取到值的时候，就对字段赋值，注入完成
 			if (value != null) {
 				ReflectionUtils.makeAccessible(field);
 				field.set(bean, value);
@@ -779,8 +780,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 			Object value;
 			try {
 				value = beanFactory.resolveDependency(desc, beanName, autowiredBeanNames, typeConverter);
-			}
-			catch (BeansException ex) {
+			} catch (BeansException ex) {
 				throw new UnsatisfiedDependencyException(null, beanName, new InjectionPoint(field), ex);
 			}
 			synchronized (this) {

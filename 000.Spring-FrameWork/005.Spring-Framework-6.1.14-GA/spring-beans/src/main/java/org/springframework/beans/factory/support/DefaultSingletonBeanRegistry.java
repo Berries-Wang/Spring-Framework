@@ -177,12 +177,16 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 		// 当正在创建中...
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+
 			// 从第二级缓存中获取
 			singletonObject = this.earlySingletonObjects.get(beanName);
 
 			if (singletonObject == null && allowEarlyReference) {
 				synchronized (this.singletonObjects) {
-					// Consistent creation of early reference within full singleton lock
+					/**
+					 * Consistent creation of early reference within full singleton lock
+					 * (在全单例锁内一致地创建早期引用)
+					 */
 					singletonObject = this.singletonObjects.get(beanName);
 					if (singletonObject == null) {
 						// 第二级缓存: 提前暴露的Bean (属性注入未完成)
@@ -192,8 +196,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 							if (singletonFactory != null) {
 								singletonObject = singletonFactory.getObject();
+								// >>> 维护第二级缓存,并清理第三级缓存
 								this.earlySingletonObjects.put(beanName, singletonObject);
-								this.singletonFactories.remove(beanName);
+								this.singletonFactories.remove(beanName); // 清理第三级缓存
 							}
 						}
 					}
@@ -219,7 +224,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			if (singletonObject == null) {
 				if (this.singletonsCurrentlyInDestruction) {
 					throw new BeanCreationNotAllowedException(beanName,
-							"Singleton bean creation not allowed while singletons of this factory are in destruction " + "(Do not request a bean from a BeanFactory in a destroy method implementation!)");
+							"Singleton bean creation not allowed while singletons of this factory are in destruction  (Do not request a bean from a BeanFactory in a destroy method implementation!)");
 				}
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
